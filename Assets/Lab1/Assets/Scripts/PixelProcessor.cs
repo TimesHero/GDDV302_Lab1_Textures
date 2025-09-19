@@ -15,10 +15,21 @@ public class PixelProcessor : MonoBehaviour
     private int pixelHeight;
 
     private int halfWidth;
+    /**********************************************************************/
+    //For texture swapping I hope!
+    public Button applyTextureButton;
+    private Texture originalTexture;
+    public Texture altTexture;
+    private bool isSwapped = false;
+    /**********************************************************************/
 
     // Start is called before the first frame update
     void Start()
     {
+        /**********************************************************************/
+        applyTextureButton.onClick.AddListener(ApplyTextureToMaterial);
+        originalTexture = GetComponent<Renderer>().material.mainTexture;
+        /**********************************************************************/
         // Set pixelWidth to the width of the texture referenced in textureToProcess
         pixelWidth = textureToProcess.width;
         // Set pixelHeight to the height of the texture referenced in textureToProcess
@@ -33,6 +44,9 @@ public class PixelProcessor : MonoBehaviour
         Debug.Log($"<color=yellow>The texture contains {pixels.Length} pixels in total.</color>");
 
         StartCoroutine(ReadFromTexture());
+        /**********************************************************************/
+
+        /**********************************************************************/
     }
 
     // Update is called once per frame
@@ -41,10 +55,10 @@ public class PixelProcessor : MonoBehaviour
         for (int currentY = 0; currentY < pixelHeight; currentY++)
         {
             // Create a Color variable called 'pixel' and initialize it the pixel at x: halfWidth y: currentY
-            Color pixel = textureToProcess.GetPixel(halfWidth,currentY);
+            Color pixel = textureToProcess.GetPixel(halfWidth, currentY);
             // Create a float variale called 'grayscale' and initialize it to grayscale value of your 'pixel' Color struct
             float grayscale = pixel.grayscale;
-            
+
             // Uncomment the lines below to update the UI
             textBox.text = $"Coordinate - ({halfWidth},{currentY})\nPixel Colour -\nGrayscale Value - {grayscale:F2}";
             pixelImage.color = pixel;
@@ -57,4 +71,27 @@ public class PixelProcessor : MonoBehaviour
             yield return new WaitForSeconds(0.05f);
         }
     }
+    /**********************************************************************/
+    //This is where I will attempt to swap the texture around.
+    private void ApplyTextureToMaterial()
+    {
+        Renderer swapTextureRender = GetComponent<Renderer>();
+        if (!isSwapped)
+        {
+            swapTextureRender.material.mainTexture = altTexture;
+        }
+        else
+        {
+            swapTextureRender.material.mainTexture = originalTexture;
+        }
+        isSwapped = !isSwapped;
+
+    }
+
+    private void OnDestroy()
+    {
+        applyTextureButton.onClick.RemoveAllListeners();
+    }
+    /**********************************************************************/
+
 }
