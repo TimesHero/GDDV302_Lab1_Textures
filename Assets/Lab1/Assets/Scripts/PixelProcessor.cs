@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class PixelProcessor : MonoBehaviour
 {
     // Make sure you set this reference to one of your imported textures 
-    public Texture2D textureToProcess;
+    private Texture2D textureToProcess;
 
     public Renderer targetRenderer;
     public Text textBox;
@@ -15,20 +15,25 @@ public class PixelProcessor : MonoBehaviour
     private int pixelHeight;
 
     private int halfWidth;
+    private int chosenWidth;
+
+    int currentY;
     /**********************************************************************/
     //For texture swapping I hope!
     public Button applyTextureButton;
-    private Texture originalTexture;
-    public Texture altTexture;
+    public Texture2D originalTexture;
+    public Texture2D altTexture;
+    
     private bool isSwapped = false;
     /**********************************************************************/
 
     // Start is called before the first frame update
     void Start()
     {
+        textureToProcess = originalTexture;
         /**********************************************************************/
         applyTextureButton.onClick.AddListener(ApplyTextureToMaterial);
-        originalTexture = GetComponent<Renderer>().material.mainTexture;
+        //originalTexture = GetComponent<Renderer>().material.mainTexture;
         /**********************************************************************/
         // Set pixelWidth to the width of the texture referenced in textureToProcess
         pixelWidth = textureToProcess.width;
@@ -39,6 +44,8 @@ public class PixelProcessor : MonoBehaviour
 
         // Set halfWidth to to half of pixelWidth
         halfWidth = pixelWidth / 2;
+        chosenWidth = halfWidth;
+        
         // Uncomment the lines below to check your values
         Debug.Log($"<color=yellow>The texture is {pixelWidth}x{pixelHeight} pixels in dimension.</color>");
         Debug.Log($"<color=yellow>The texture contains {pixels.Length} pixels in total.</color>");
@@ -52,15 +59,15 @@ public class PixelProcessor : MonoBehaviour
     // Update is called once per frame
     private IEnumerator ReadFromTexture()
     {
-        for (int currentY = 0; currentY < pixelHeight; currentY++)
+        for (currentY = 0; currentY < pixelHeight; currentY++)
         {
             // Create a Color variable called 'pixel' and initialize it the pixel at x: halfWidth y: currentY
-            Color pixel = textureToProcess.GetPixel(halfWidth, currentY);
+            Color pixel = textureToProcess.GetPixel(chosenWidth, currentY);
             // Create a float variale called 'grayscale' and initialize it to grayscale value of your 'pixel' Color struct
             float grayscale = pixel.grayscale;
 
             // Uncomment the lines below to update the UI
-            textBox.text = $"Coordinate - ({halfWidth},{currentY})\nPixel Colour -\nGrayscale Value - {grayscale:F2}";
+            textBox.text = $"Coordinate - ({chosenWidth},{currentY})\nPixel Colour -\nGrayscale Value - {grayscale:F2}";
             pixelImage.color = pixel;
 
             // Set the color property of the material property of the targetRenderer to 'pixel'
@@ -79,15 +86,32 @@ public class PixelProcessor : MonoBehaviour
         if (!isSwapped)
         {
             swapTextureRender.material.mainTexture = altTexture;
+            textureToProcess = altTexture;
         }
         else
         {
             swapTextureRender.material.mainTexture = originalTexture;
+            textureToProcess = originalTexture;
         }
         isSwapped = !isSwapped;
+        
+        pixelWidth = textureToProcess.width;
+        pixelHeight = textureToProcess.height;
+        halfWidth = pixelWidth / 2;
+        chosenWidth = halfWidth;
 
+        currentY = 0;
+        StopCoroutine(ReadFromTexture());
+        StartCoroutine(ReadFromTexture());
     }
-
+    //This is where my button should randomize the X location
+    public void ApplyRandomX()
+    {
+        StopCoroutine(ReadFromTexture());
+        int randomX = Random.Range(0, textureToProcess.width);
+        chosenWidth = randomX;
+        StartCoroutine(ReadFromTexture());
+    }
     private void OnDestroy()
     {
         applyTextureButton.onClick.RemoveAllListeners();

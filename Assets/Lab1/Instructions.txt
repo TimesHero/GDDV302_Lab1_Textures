@@ -1,0 +1,19 @@
+Instructions.txt - v1.0.0 (2025-09-21)
+Build Status: [Mostly Stable]
+		- aka "It compiles. Ship it.
+
+***INSTRUCTIONS FOR Fraser-AJ-Lab1***
+
+
+Controls: Swap Texture Button
+		- Changes the cubes texture (NPOT <-> POT)
+		- Recomputes dimensions and resets sampling to halfwidth
+		- Resets Y to 0 and restarts processing
+	  
+	  Random X Button
+		- Chooses a random but valid X based on the current texture's width.
+		- Sets it to the active column
+		- Resets Y to 0 and restarts processing
+
+***PLEASE NOTE***
+Changing the NPOT and POT textures around in the originalTexture and altTexture spaces in the inspector might not actually change or update properly and I am unsure why at this point. The way it is currently set up seems to be working with buttons and such. Thank you for your understanding.
